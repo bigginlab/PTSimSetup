@@ -96,7 +96,6 @@ residue_polar_hydrogens = {'ASP': ['HD*'],
                            #'LIG': ['HO', 'HN']} # H1-6
 
 # if ligand being considered, append the ligand heavy atom names to the dicts down here
-# code goes here
 
 formatted_strings = []
 
@@ -124,7 +123,6 @@ resudie_heavy_atoms = {'ASP': ['OD1', 'OD2'],
                        #'LIG': ['O*', 'N*']} # O1, O2, OXT1, OXT2, N1, N2
 
 # if ligand being considered, append the ligand heavy atom names to the dicts down here
-# code goes here
 
 formatted_strings = []
 
@@ -136,21 +134,20 @@ for key, values in resudie_heavy_atoms.items():
 ## get relevant heavy atom selection tokens from this list of formatted strings
 heavy_atom_names = " or ".join(formatted_strings)
 
-
 # temporary ligand defs
 ligand_cec_heavy_weights = { # dict of indices mapped to weights
-    '61250': 0.0,
-    '61251': 0.0,
-    '61266': 0.0,
-    '61267': 0.0,
-    '61252': 3.0,
-    '61261': 3.0,
+    61249: 0.0,
+    61250: 0.0,
+    61265: 0.0,
+    61266: 0.0,
+    61251: 3.0,
+    61260: 3.0,
 }
 
 ligand_cec_hydrogens = [ # list of atom indices
-61253, 61254, 61255, 61262, 61263, 61264
+61252, 61253, 61254, 61261, 61262, 61263
 ]
-
+ 
 # Main Loop 
 for ts in tqdm(u.trajectory):
 
@@ -200,12 +197,6 @@ for ts in tqdm(u.trajectory):
             cec_hydrogen_atoms += u.select_atoms('chainID A and protein and not backbone and ( (resid %s) and (%s))' % (' or resid '.join([str(resid) for resid in QMdynamic_resids_list]), hydrogen_names))
         else:
             QMdynamic_resids_list = []
-    
-    # routine the select the ligand if present
-    # ligand_in_qm_region = True or False
-    # then
-    # append the indices from the ligand_cec_heavy_weights dict to cec_heavy_atoms
-    # append teh indces from the cec_hydrogen_atoms list to cec_hydrogen_atoms
 
     # undo the rotation
     u.atoms.rotateby(-angle, axis)
@@ -268,7 +259,23 @@ for ts in tqdm(u.trajectory):
             print('atom name not recognized')
             print(atom.name, atom.resname, atom.resid)
             exit()
-            
+    
+    # routine the select the ligand if present
+    ligand_selection = u.select_atoms("resname %s" % ligand_resname)
+    ligand_resid = ligand_selection.residues.resids
+    if ligand_resid in QMdynamic_resids_list:
+        ligand_in_qm_region = True
+        # append the indices from the ligand_cec_heavy_weights dict and hydrogens list
+        ligand_cec_heavyatoms = list(ligand_cec_heavy_weights.keys())
+        cec_heavy_atoms += u.select_atoms(' or '.join(f'index {i}' for i in ligand_cec_heavyatoms))
+        cec_hydrogen_atoms += u.select_atoms(' or '.join(f'index {i}' for i in ligand_cec_hydrogens))
+        #print('ligand weight factors:', ligand_cec_heavy_weights, '\n')
+
+        # merge the dicts
+        weight_factors.update(ligand_cec_heavy_weights)
+        # redeclare cec_atoms
+        cec_atoms = cec_heavy_atoms + cec_hydrogen_atoms
+
     # if debug print out the weight factors
     if debug:
         print('weight factors:', weight_factors, '\n')
