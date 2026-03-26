@@ -3,11 +3,11 @@
 A Python toolkit for calculating and analysing **proton transfer (PT) collective variables (CVs)** along a protein channel, designed for use in QM/MM enhanced-sampling simulations with [PLUMED](https://www.plumed.org/).
 
 The toolkit calculates three CVs per frame:
-- **CEC Projection** (`CV`): a geometric projection of the Centre of Excess Charge (CEC) onto the vector between donor and acceptor sites.
+- **CEC Projection** (`CV`): a geometric projection of the modified Centre of Excess Charge (mCEC) onto the vector between donor and acceptor sites.
 - **Principal Curve Connectivity** (`PCC`): a connectivity measure along a principal curve fitted through the protonable heavy atom point cloud.
 - **CEC-weighted PCC** (`CECPCC`): a variant of PCC where occupancies are screened by proximity to the CEC.
 
-These CVs follow the formalism described in [doi:10.1021/jp052328q](https://pubs.acs.org/doi/10.1021/jp052328q) and [doi:10.1073/pnas.2113141118](https://doi.org/10.1073/pnas.2113141118).
+These CVs are described in [König et al., *J. Phys. Chem. A* 2006, 110(2), 548–563](https://pubs.acs.org/doi/10.1021/jp052328q) and [Li & Voth, *PNAS* 2021, 118(49), e2113141118](https://www.pnas.org/doi/full/10.1073/pnas.2113141118).
 
 ---
 
@@ -96,20 +96,22 @@ The CEC definition uses protonable sidechain heavy atoms and polar hydrogens. Th
 ## Method notes
 
 ### Centre of Excess Charge (CEC)
+Main reference: [König et al., *J. Phys. Chem. A* 2006, 110(2), 548–563](https://pubs.acs.org/doi/10.1021/jp052328q)
 The CEC is computed as:
 
 ```
 CEC = Σ r_Hi  −  Σ w_j * r_Xj  −  Σ_ij f_sw(d_ij) * (r_Hi − r_Xj)
 ```
 
-where `r_Hi` are hydrogen positions, `r_Xj` are heavy atom positions with weight factors `w_j`, and `f_sw` is a sigmoidal switching function that down-weights long H–X distances.
+where `r_Hi` are hydrogen positions, `r_Xj` are heavy atom positions with weight factors `w_j`, and `f_sw` is a sigmoidal switching function.
 
-The CEC is then projected onto the donor–acceptor axis using a cosine projection formula involving the weighted distances `RD`, `RE`, and `RDE`.
+The CEC is then projected onto the donor–acceptor axis using a cosine projection formula involving the weighted distances `RD`, `RE`, and `RDE`, for a normalised progress coordinate.
 
 ### Principal Curve Connectivity (PCC)
-A cubic polynomial is fitted to the protonable heavy atom positions as a principal curve between the donor and acceptor centres of mass. Each bead of the curve is assigned an occupancy derived from its water coordination number (via the same switching function). The PCC is the **geometric mean** of pairwise bead-to-bead connectivities — it approaches 1 when a continuous hydrated chain exists.
+Main reference: [Li & Voth, *PNAS* 2021, 118(49), e2113141118](https://www.pnas.org/doi/full/10.1073/pnas.2113141118)
+A cubic polynomial is fitted to the protonable heavy atom positions as a principal curve between the donor and acceptor centres of mass. Each bead of the curve is assigned an occupancy derived from its water coordination number (via the same switching function). The PCC is the **geometric mean** of pairwise bead-to-bead connectivities and approaches 1 when a continuous hydrated chain exists. Note that the PCC does not consider dipolar alignment, so not all continuous hydrated chains will be ideal water wires.
 
-In the CEC-weighted variant, occupancy contributions are raised to an exponent that decays with distance from the CEC, so beads near the CEC contribute more strongly.
+In the CEC-weighted variant, occupancy contributions are raised to an exponent that decays with distance from the CEC, so beads near the CEC contribute more strongly. This is described in [doi:10.1073/pnas.2113141118](https://doi.org/10.1073/pnas.2113141118): 
 
 ---
 
