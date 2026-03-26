@@ -96,7 +96,9 @@ The CEC definition uses protonable sidechain heavy atoms and polar hydrogens. Th
 ## Method notes
 
 ### Centre of Excess Charge (CEC)
+
 Main reference: [König et al., *J. Phys. Chem. A* 2006, 110(2), 548–563](https://pubs.acs.org/doi/10.1021/jp052328q)
+
 The CEC is computed as:
 
 ```
@@ -108,10 +110,12 @@ where `r_Hi` are hydrogen positions, `r_Xj` are heavy atom positions with weight
 The CEC is then projected onto the donor–acceptor axis using a cosine projection formula involving the weighted distances `RD`, `RE`, and `RDE`, for a normalised progress coordinate.
 
 ### Principal Curve Connectivity (PCC)
+
 Main reference: [Li & Voth, *PNAS* 2021, 118(49), e2113141118](https://www.pnas.org/doi/full/10.1073/pnas.2113141118)
+
 A cubic polynomial is fitted to the protonable heavy atom positions as a principal curve between the donor and acceptor centres of mass. Each bead of the curve is assigned an occupancy derived from its water coordination number (via the same switching function). The PCC is the **geometric mean** of pairwise bead-to-bead connectivities and approaches 1 when a continuous hydrated chain exists. Note that the PCC does not consider dipolar alignment, so not all continuous hydrated chains will be ideal water wires.
 
-In the CEC-weighted variant, occupancy contributions are raised to an exponent that decays with distance from the CEC, so beads near the CEC contribute more strongly. This is described in [doi:10.1073/pnas.2113141118](https://doi.org/10.1073/pnas.2113141118): 
+In the CEC-weighted variant, occupancy contributions are raised to an exponent that decays with distance from the CEC, so beads near the CEC contribute more strongly. 
 
 ---
 
